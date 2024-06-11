@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Dream - Aframe - VR walkthrough</title>
+    <meta name="description" content="Dream - Aframe - VR walkthrough" />
+    <script src="https://aframe.io/releases/0.7.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-animation-component@^4.1.2/dist/aframe-animation-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-look-at-component@0.5.1/dist/aframe-look-at-component.min.js"></script>
+
+    <!-- Hotspot -->
+    <script>
+        AFRAME.registerComponent("hotspots", {
+            init: function () {
+                this.el.addEventListener("reloadspots", function (evt) {
+                    //get the entire current spot group and scale it to 0
+                    var currspotgroup = document.getElementById(evt.detail.currspots);
+                    currspotgroup.setAttribute("scale", "0 0 0");
+
+                    //get the entire new spot group and scale it to 1
+                    var newspotgroup = document.getElementById(evt.detail.newspots);
+                    newspotgroup.setAttribute("scale", "1 1 1");
+                });
+            },
+        });
+        AFRAME.registerComponent("spot", {
+            schema: {
+                linkto: { type: "string", default: "" },
+                spotgroup: { type: "string", default: "" },
+            },
+            init: function () {
+                //add image source of hotspot icon
+                this.el.setAttribute("src", "#hotspot");
+                //make the icon look at the camera all the time
+                this.el.setAttribute("look-at", "#cam");
+
+                var data = this.data;
+
+                this.el.addEventListener("click", function () {
+                    //set the skybox source to the new image as per the spot
+                    var sky = document.getElementById("skybox");
+                    sky.setAttribute("src", data.linkto);
+
+                    var spotcomp = document.getElementById("spots");
+                    var currspots = this.parentElement.getAttribute("id");
+                    //create event for spots component to change the spots data
+                    spotcomp.emit("reloadspots", {
+                        newspots: data.spotgroup,
+                        currspots: currspots,
+                    });
+                });
+            },
+        });
+
+    </script>
+</head>
+
+<body>
+    <a-scene background="color: #ECECEC">
+        <a-assets>
+            <!-- Images -->
+            <img id="point1" src="./Asset/4kilo_0.8.png" />
+            <img id="point2" src="./Asset/4kilo_0.9.png" />
+            <img id="point3" src="./Asset/4kilo_1.png" />
+            <img id="point4" src="./Asset/4kilo_2.png" />
+            <img id="point5" src="./Asset/4kilo_3.png" />
+            <img id="point6" src="./Asset/4kilo_4.png" />
+
+            <!-- Hotspot image -->
+            <img id="hotspot" src="./Asset/pointer.webp" />
+
+        </a-assets>
+
+
+        <a-entity id="spots" hotspots>
+            <!-- first image -->
+            <a-entity id="group-point1" scale="1 1 1">
+                <a-image spot="linkto:#point2;spotgroup:group-point2" position="-6 1 -14"></a-image>
+            </a-entity>
+
+            <!-- second image  -->
+            <a-entity id="group-point2" scale="0 0 0">
+                <a-image spot="linkto:#point3;spotgroup:group-point3" position="14 2 39"></a-image>
+                <a-image spot="linkto:#point1;spotgroup:group-point1" position="4 -0 -18"></a-image>
+            </a-entity>
+
+            <!-- third image  -->
+            <a-entity id="group-point3" scale="0 0 0">
+                <a-image spot="linkto:#point4;spotgroup:group-point4" position="-13 0 -33"></a-image>
+                <a-image spot="linkto:#point2;spotgroup:group-point2" position="-17 1 49"></a-image>
+            </a-entity>
+
+            <!-- fourth image  -->
+            <a-entity id="group-point4" scale="0 0 0">
+                <a-image spot="linkto:#point5;spotgroup:group-point5" position="20 0 25"></a-image>
+                <a-image spot="linkto:#point3;spotgroup:group-point3" position="9 0 -39"></a-image>
+            </a-entity>
+
+            <!-- fifth image  -->
+            <a-entity id="group-point5" scale="0 0 0">
+                <a-image spot="linkto:#point6;spotgroup:group-point" position="2 1 13"></a-image>
+                <a-image spot="linkto:#point4;spotgroup:group-point4" position="16 0 -44"></a-image>
+            </a-entity>
+
+            <a-sky id="skybox" src="#point1"></a-sky>
+
+            <!-- Camera and Cursor  -->
+            <a-entity id="cam" camera position="0 1.6 0" look-controls>
+                <a-entity cursor="fuse:true;fuseTimeout:1500"
+                    geometry="primitive:ring;radiusInner:0.01;radiusOuter:0.02" position="0 0 -1.8"
+                    material="shader:flat;color:#ff0000"
+                    animation__mouseenter="property:scale;to:3 3 3;startEvents:mouseenter;endEvents:mouseleave;dir:reverse;dur:2000;loop:1">
+                </a-entity>
+            </a-entity>
+    </a-scene>
+</body>
+
+</html>
